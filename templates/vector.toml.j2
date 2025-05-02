@@ -1,0 +1,23 @@
+[sources.syslog]
+type = "syslog"
+address = "0.0.0.0:514"
+mode = "tcp"
+
+[transforms.parse_syslog]
+type = "remap"
+inputs = ["syslog"]
+source = '''
+. = parse_syslog!(.message)
+'''
+
+[sinks.clickhouse]
+type = "clickhouse"
+inputs = ["parse_syslog"]
+endpoint = "http://{{ clickhouse_host }}:8123"
+database = "logs"
+table = "system_logs"
+auth.strategy = "basic"
+auth.user = "default"
+auth.password = ""
+batch.max_events = 1000
+batch.timeout_secs = 1 
