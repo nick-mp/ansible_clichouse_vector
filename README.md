@@ -7,6 +7,7 @@
 ## Version 
 
 clickhouse_version: "22.3.3.44"
+
 vector_version: "0.39.0"
 
 ### Prerequisite
