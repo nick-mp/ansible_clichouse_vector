@@ -43,22 +43,21 @@
       ansible.builtin.service:
         name: vector
         state: restarted
+- name: Install Vector
+  hosts: vector
   tasks:
-    - name: Add Vector repository
-      become: true
-      ansible.builtin.yum_repository:
-        name: vector
-        description: Vector repository
-        baseurl: https://packages.timber.io/vector/0.31.x/yum/stable/x86_64
-        gpgcheck: yes
-        gpgkey: https://packages.timber.io/vector/0.31.x/yum/stable/x86_64/vector.gpg.key
-        enabled: yes
+    - name: Get vector distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.{{ vector_architecture }}.rpm"
+        dest: "/tmp/vector-{{ vector_version }}-1.{{ vector_architecture }}.rpm"
+        mode: '0644'
 
-    - name: Install Vector
+    - name: Install vector
       become: true
       ansible.builtin.yum:
-        name: vector
-        state: present
+        disable_gpg_check: true
+        name:
+          - /tmp/vector-{{ vector_version }}-1.{{ vector_architecture }}.rpm
 
     - name: Deploy Vector configuration
       become: true
@@ -76,3 +75,12 @@
         name: vector
         state: started
         enabled: yes
+
+  handlers:
+    - name: Restart vector
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+  tags: vector
+
